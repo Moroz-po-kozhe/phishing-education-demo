@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Информационная безопасность - Мероприятие</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: white;
+            color: #000000;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .date-badge {
+            background: #f5f5f5;
+            color: #000000;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            border: 1px solid #ddd;
+        }
+
+        .calendar-btn {
+            background: #757575;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+            transition: background 0.3s;
+        }
+
+        .calendar-btn:hover {
+            background: #616161;
+        }
+
+        .speakers {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+
+        .speaker {
+            text-align: center;
+        }
+
+        .speaker-avatar {
+            width: 80px;
+            height: 80px;
+            background: #f5f5f5;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: 2px solid #e0e0e0;
+            color: #000000;
+        }
+
+        .speaker-name {
+            font-weight: bold;
+            color: #000000;
+        }
+
+        .speaker-title {
+            color: #000000;
+            font-size: 0.9rem;
+        }
+
+        .event-title {
+            font-size: 2.5rem;
+            margin: 20px 0;
+            text-align: center;
+            color: #000000;
+        }
+
+        .event-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+
+        .countdown {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #d32f2f;
+            font-weight: bold;
+        }
+
+        .start-time {
+            font-size: 1.1rem;
+            color: #000000;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn-test {
+            background: #757575;
+            color: white;
+            border: 1px solid #616161;
+        }
+
+        .btn-test:hover {
+            background: #616161;
+        }
+
+        .btn-register {
+            background: #d32f2f;
+            color: white;
+            border: 1px solid #b71c1c;
+        }
+
+        .btn-register:hover {
+            background: #b71c1c;
+            transform: translateY(-2px);
+        }
+
+        /* Модальное окно регистрации */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 40px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            color: #000000;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-title {
+            color: #000000;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+
+        .modal-subtitle {
+            color: #000000;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #000000;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            color: #000000;
+        }
+
+        .form-group input:focus {
+            border-color: #d32f2f;
+            outline: none;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 25px 0;
+        }
+
+        .agreement {
+            font-size: 0.85rem;
+            color: #000000;
+            line-height: 1.4;
+            margin-bottom: 25px;
+        }
+
+        .register-btn {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+            border: 1px solid #b71c1c;
+        }
+
+        .register-btn:hover {
+            background: #b71c1c;
+        }
+
+        /* Окно предупреждения */
+        .warning-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .warning-content {
+            background: linear-gradient(135deg, #ff5252, #d32f2f);
+            margin: 10% auto;
+            padding: 40px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .warning-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .warning-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #ffeb3b;
+        }
+
+        .warning-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .warning-btn {
+            background: white;
+            color: #d32f2f;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .warning-btn:hover {
+            background: #f5f5f5;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Основная страница мероприятия -->
+    <div class="container">
+        <div class="header">
+            <div class="date-badge">В ноября 09:00</div>
+            <button class="calendar-btn">ДОБАВИТЬ В КАЛЕНДАРЬ</button>
+            
+            <div class="speakers">
+                <div class="speaker">
+                    <div class="speaker-avatar">ДК</div>
+                    <div class="speaker-name">Давид Шалвович</div>
+                    <div class="speaker-title">Калхиташвили</div>
+                </div>
+                <div class="speaker">
+                    <div class="speaker-avatar">ДК</div>
+                    <div class="speaker-name">Давид Шалвович</div>
+                    <div class="speaker-title">Калхиташвили</div>
+                </div>
+            </div>
+        </div>
+
+        <h1 class="event-title">Информационная безопасность</h1>
+
+        <div class="event-info">
+            <div class="countdown">Мероприятие начнётся через 9 часов</div>
+            <div class="start-time">Начало: 8 ноября 09:00</div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn btn-test">ПРОЙТИ ТЕСТ СИСТЕМЫ</button>
+            <button class="btn btn-register" onclick="openRegistrationModal()">ЗАРЕГИСТРИРОВАТЬСЯ</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно регистрации -->
+    <div id="registrationModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-title">Информационная безопасность</h2>
+            <h3 class="modal-subtitle">Регистрация на мероприятие</h3>
+            
+            <div class="form-group">
+                <label>Электронная почта</label>
+                <input type="email" placeholder="Введите email" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Пароль</label>
+                <input type="password" placeholder="Введите пароль" required>
+            </div>
+
+            <div class="form-group">
+                <label>ФИО</label>
+                <input type="text" placeholder="Введите фамилию, имя и отчество" required>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="agreement">
+                Нажимая на кнопку «Зарегистрироваться», я акцептую условия лицензионного договора, 
+                подтверждаю факт ознакомления с политикой обработки персональных данных, соглашаюсь 
+                на обработку персональных данных и связь со мною способами, указанными в договоре, 
+                в целях исполнения условий договора.
+            </div>
+
+            <button class="register-btn" onclick="showWarning()">ЗАРЕГИСТРИРОВАТЬСЯ</button>
+        </div>
+    </div>
+
+    <!-- Окно предупреждения о фишинге -->
+    <div id="warningModal" class="warning-modal">
+        <div class="warning-content">
+            <div class="warning-icon">⚠️</div>
+            <h2 class="warning-title">ВНИМАНИЕ!</h2>
+            <p class="warning-text">Вы чуть не стали жертвой фишинговой атаки!</p>
+            <p class="warning-text">Это учебный пример, демонстрирующий как злоумышленники могут создавать поддельные страницы регистрации.</p>
+            <p class="warning-text"><strong>Будьте аккуратны при вводе личных данных на незнакомых сайтах!</strong></p>
+            <button class="warning-btn" onclick="closeAllModals()">Понятно</button>
+        </div>
+    </div>
+
+    <script>
+        // Открыть модальное окно регистрации
+        function openRegistrationModal() {
+            document.getElementById('registrationModal').style.display = 'block';
+        }
+
+        // Показать предупреждение о фишинге
+        function showWarning() {
+            // Закрыть окно регистрации
+            document.getElementById('registrationModal').style.display = 'none';
+            
+            // Показать предупреждение через небольшую задержку
+            setTimeout(function() {
+                document.getElementById('warningModal').style.display = 'block';
+            }, 500);
+        }
+
+        // Закрыть все модальные окна
+        function closeAllModals() {
+            document.getElementById('registrationModal').style.display = 'none';
+            document.getElementById('warningModal').style.display = 'none';
+        }
+
+        // Закрыть модальные окна при клике вне их
+        window.onclick = function(event) {
+            const regModal = document.getElementById('registrationModal');
+            const warnModal = document.getElementById('warningModal');
+            
+            if (event.target === regModal) {
+                regModal.style.display = 'none';
+            }
+            if (event.target === warnModal) {
+                warnModal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
